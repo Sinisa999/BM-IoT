@@ -1,0 +1,8 @@
+{
+	"humidity" : 52.199999999999889,
+	"light" : 205000,
+	"relay_pump_state" : "OFF",
+	"relay_vent_state" : "OFF",
+	"soil_ph" : 7,
+	"temperature" : 25.899999999999984
+}

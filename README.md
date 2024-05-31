@@ -14,7 +14,10 @@ sudo apt-get install libjsoncpp-dev
 
 # Build:
 
-envionment -> g++ -I. -o environment environment.cpp -ljsoncpp -pthread
-controller -> g++ -o controller controller.cpp -ljsoncpp -lmosquitto
-sensor -> g++ -I. -o sensor sensor.cpp -ljsoncpp -lmosquitto -pthread
-actuator -> g++ -I. -o actuator actuator.cpp -ljsoncpp -lmosquitto -pthread
+● envionment -> g++ -I. -o environment environment.cpp -ljsoncpp -pthread
+
+● controller -> g++ -o controller controller.cpp -ljsoncpp -lmosquitto
+
+● sensor -> g++ -I. -o sensor sensor.cpp -ljsoncpp -lmosquitto -pthread
+
+● actuator -> g++ -I. -o actuator actuator.cpp -ljsoncpp -lmosquitto -pthread

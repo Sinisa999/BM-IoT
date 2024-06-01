@@ -1,16 +1,24 @@
 # BM-IoT
 
 # Setup:
-sudo apt-get update
-sudo apt-get intall libmosquitto-dev
+● sudo apt-get update
 
-sudo apt install mosquitto-clients
-sudo systemctl start mosquitto
-sudo systemctl enable mosquitto
-sudo systemctl status mosquitto
+● sudo apt-get intall libmosquitto-dev
 
-sudo apt-get update
-sudo apt-get install libjsoncpp-dev
+
+● sudo apt install mosquitto-clients
+
+● sudo systemctl start mosquitto
+
+● sudo systemctl enable mosquitto
+
+● sudo systemctl status mosquitto
+
+
+● sudo apt-get update
+
+● sudo apt-get install libjsoncpp-dev
+
 
 # Build:
 

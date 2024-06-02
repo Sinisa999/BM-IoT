@@ -41,8 +41,9 @@ struct DeviceInfo {
     bool connected;
 };
 
-int sockfd; 
+int sockfd;
 std::unordered_map<std::string, DeviceInfo> connected_devices;
+
 
 // MQTT callback function
 void on_message_callback(struct mosquitto* mosq, void* userdata, const struct mosquitto_message* message) {
@@ -160,7 +161,7 @@ int main(int argc, char* argv[]) {
     client_addr.sin_family = AF_INET;
     client_addr.sin_addr.s_addr = inet_addr(multicast_address);
     client_addr.sin_port = htons(multicast_port);
-    
+
     std::string response = "";
 
     while (true) {
@@ -171,7 +172,7 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
-        buffer[bytes_received] = '\0'; 
+        buffer[bytes_received] = '\0';
         std::string message(buffer);
 
         // Provera tipa primljene poruke
@@ -224,7 +225,7 @@ int main(int argc, char* argv[]) {
                 std::cerr << "Failed to parse JSON: " << errors << std::endl;
                 continue;
             }
-            
+
             std::string id = root["id"].asString();
             if (connected_devices.find(id) == connected_devices.end()) {
                 DeviceInfo device_info;
@@ -232,7 +233,7 @@ int main(int argc, char* argv[]) {
                 device_info.name = root["name"].asString();
                 device_info.status = root["status"].asString();
                 connected_devices[id] = device_info;
-                
+
                 // Ispisivanje podataka o novom prikljucenom uredjaju
                 std::cout << "\nNew device connected:" << std::endl;
                 std::cout << "ID: " << device_info.id << ", Name: " << device_info.name << ", Status: " << device_info.status << std::endl;

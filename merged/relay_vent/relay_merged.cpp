@@ -64,7 +64,7 @@ void send_json_response(int sockfd, struct sockaddr_in server_addr, std::string 
     //std::cout << "Sent JSON response: " << response << std::endl;
 }
 
-int receive_confirmation_with_timeout(int sockfd, struct sockaddr_in server_addr, int timeout_sec) {
+int receive_confirmation_with_timeout(int sockfd, struct sockaddr_in server_addr, int timeout_sec, std::string &controller_ip) {
     char buffer[1024];
     socklen_t server_len = sizeof(server_addr);
     struct timeval tv;
@@ -96,6 +96,10 @@ int receive_confirmation_with_timeout(int sockfd, struct sockaddr_in server_addr
         buffer[bytes_received] = '\0';
         std::string message(buffer);
         std::cout << "Received confirmation message from controller: " << message << std::endl;
+
+        // Extract the IP address of the controller
+        controller_ip = inet_ntoa(server_addr.sin_addr);
+        std::cout << "Controller IP: " << controller_ip << std::endl;
         return 1;
     }
 }
@@ -157,6 +161,7 @@ void on_message_callback(struct mosquitto* mosq, void* userdata, const struct mo
 int main() {
     int sockfd;
     struct sockaddr_in server_addr;
+    std::string controller_ip;
     std::string id = generate_unique_id();
 
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -183,7 +188,7 @@ int main() {
         send_discovery(sockfd, server_addr);
         std::cout << "M-SEARCH sent." << std::endl;
 
-        bool flag_received = receive_confirmation_with_timeout(sockfd, server_addr, 5);
+        bool flag_received = receive_confirmation_with_timeout(sockfd, server_addr, 5, controller_ip);
 
         if (flag_received) {
             controller_found = true;
@@ -205,7 +210,7 @@ int main() {
 
     mosquitto_message_callback_set(mosq, on_message_callback);
 
-    if (mosquitto_connect(mosq, mqtt_host, mqtt_port, 60) != MOSQ_ERR_SUCCESS) {
+    if (mosquitto_connect(mosq, controller_ip.c_str(), mqtt_port, 60) != MOSQ_ERR_SUCCESS) {
         std::cerr << "Error: Unable to connect to MQTT broker.\n";
         return 1;
     }
@@ -219,7 +224,7 @@ int main() {
         send_notify(sockfd, server_addr, id);
         std::cout << "NOTIFY sent.\n" << std::endl;
 
-        receive_confirmation_with_timeout(sockfd, server_addr, 3);
+        receive_confirmation_with_timeout(sockfd, server_addr, 3, controller_ip);
 
         send_json_response(sockfd, server_addr, id);
         std::cout << "Device status sent.\n" << std::endl;

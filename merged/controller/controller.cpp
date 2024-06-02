@@ -31,7 +31,7 @@
 
 const unsigned short multicast_port = 1900;
 const char* multicast_address = "239.255.255.250";
-const char* sensor_location = "127.0.0.1 "; // Zameniti sa stvarnom adresom
+  const char* sensor_location = "127.0.0.1 "; // Zameniti sa stvarnom adresom
 
 // Structure to hold device information
 struct DeviceInfo {
@@ -84,7 +84,11 @@ void on_message_callback(struct mosquitto* mosq, void* userdata, const struct mo
     }
 }
 
-void process_discovery_message(const std::string& message) { // M-SEARCH
+void process_discovery_message(const std::string& message, const struct sockaddr_in& sender_addr) { // M-SEARCH
+    char sender_ip[INET_ADDRSTRLEN]; // Buffer to hold the sender's IP address
+    inet_ntop(AF_INET, &(sender_addr.sin_addr), sender_ip, INET_ADDRSTRLEN); // Convert binary IP to string
+
+
     std::cout << "Received message from device:" << std::endl;
     std::cout << message << std::endl;
 }
@@ -165,8 +169,8 @@ int main(int argc, char* argv[]) {
     std::string response = "";
 
     while (true) {
-        socklen_t server_len = sizeof(server_addr);
-        int bytes_received = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&server_addr, &server_len);
+        socklen_t sender_len = sizeof(client_addr);
+        int bytes_received = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&client_addr, &sender_len);
         if (bytes_received < 0) {
             std::cerr << "Receive failed" << std::endl;
             continue;
@@ -177,17 +181,17 @@ int main(int argc, char* argv[]) {
 
         // Provera tipa primljene poruke
         if (message.find("M-SEARCH") != std::string::npos) {
-            process_discovery_message(message);
+            process_discovery_message(message, client_addr);
             // Poslati nazad RESPONSE poruku uredjaju da je povezan
-            send_confirmation(sockfd, server_addr);
+            send_confirmation(sockfd, client_addr);
         } else if (message.find("NTS: ssdp:alive") != std::string::npos) { // alive
-            process_discovery_message(message);
+            process_discovery_message(message, client_addr);
             // Poslati nazad poruku uredjaju da je povezan
-            send_confirmation(sockfd, server_addr);
+            send_confirmation(sockfd, client_addr);
             // Ispis trenutno povezanih uredjaja
             print_connected(connected_devices);
         } else if (message.find("NTS: ssdp:byebye") != std::string::npos) { // byebye
-            process_discovery_message(message);
+            process_discovery_message(message, client_addr);
             // Procesuiraj NOTIFY poruku tipa byebye
             std::istringstream iss(message);
             std::string line;
